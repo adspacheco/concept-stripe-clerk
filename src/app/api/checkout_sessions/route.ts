@@ -57,7 +57,7 @@ export async function POST(req: NextApiRequest) {
   // Cria checkout session com os dados do usuário
   try {
     const successUrl = `http://${process.env.VERCEL_URL}/secret`;
-    const cancelUrl = `http://${process.env.VERCEL_URL}/secret`;
+    const cancelUrl = `http://${process.env.VERCEL_URL}/pricing`;
 
     const params: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId.toString(),

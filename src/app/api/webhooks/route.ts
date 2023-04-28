@@ -17,6 +17,7 @@ const relevantEvents = new Set([
   "checkout.session.completed",
   "customer.subscription.deleted",
   "customer.subscription.updated",
+  "invoice.payment_failed",
 ]);
 
 async function buffer(body: ReadableStream<Uint8Array>) {
@@ -69,11 +70,12 @@ export async function POST(req: NextRequest) {
       switch (type) {
         case "checkout.session.completed":
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
+
           const newSubscription = await stripe.subscriptions.retrieve(
             checkoutSession.subscription as string
           );
           //checkoutSession.metadata.clerkUserId;
-          console.log("status", newSubscription.status);
+          // console.log("status", newSubscription.status);
 
           // const customerId = checkoutSession.customer as string;
           // console.log(newSubscription);
@@ -84,12 +86,17 @@ export async function POST(req: NextRequest) {
           )) as Stripe.Customer;
 
           // Atualiza o status da assinatura no usuário no clerk
+          // "active" ou "trialing"
           await clerkClient.users.updateUser(user.metadata.clerkUserId, {
             privateMetadata: {
               subscription: newSubscription.status,
             },
           });
 
+          break;
+
+        case "invoice.payment_failed":
+          // todo
           break;
 
         case "customer.subscription.updated":
